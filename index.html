@@ -1,0 +1,168 @@
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <title>Document</title>
+</head>
+
+<body>
+
+    <div id="game">
+
+        <table id="grid">
+        </table>
+
+    </div>
+
+    <style>
+        #game{
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            width: 100%;
+            height: 100%;
+        }
+        
+        #grid{
+            width: 70%;
+            height: 70%;
+            border-collapse: collapse;
+            border-spacing: 0;
+            position: relative;
+        }   
+
+        #grid td{
+            border: 1px solid black;
+            text-align: right;
+            vertical-align: top;
+            font-size: 100%;
+        }
+        #grid tr:last-child td:last-child{
+           border-bottom: 0;
+        }
+        
+        #character{
+            background-color: rgba(150, 150, 150, 0.2);
+            position: absolute;
+            text-align: center;
+            vertical-align: middle;
+        }
+
+
+    </style>
+
+    <script type="text/javascript">
+        var widthCountSquares = 10;
+        var heightCountSquares = 5;
+
+        var grid = "";
+        for (var i = 0; i < heightCountSquares; i++) {
+            grid += "<tr>";
+            for (var j = 0; j < widthCountSquares; j++) {
+                grid += "<td>" + j + "</td>";
+            }
+            grid += "</tr>";
+        }
+
+        document.getElementById("grid").innerHTML = grid;
+
+        // // Grid class constructor
+        // function Grid(name) {
+        //     this.name = name;
+        // }
+        // Grid.prototype.createGrid = function () {
+        //     return this.name;
+        // }
+
+        // var grid = new Grid("JOhn");
+        // console.log(grid.createGrid());
+
+        var game = document.getElementById("game");
+
+        var characterClass = {
+            width: 0.7 * game.offsetWidth / widthCountSquares,
+            height: 0.7 * game.offsetHeight / heightCountSquares,
+            createCharacter: function () {
+                var character = document.createElement('div');
+                character.setAttribute("id", "character");
+                character.style.width = this.width;
+                character.style.height = this.height;
+                character.style.right = 0;
+                character.style.bottom = -this.height;
+                character.innerText = 0;
+
+                return character;
+            }
+        };
+
+        var grid = document.getElementById("grid");
+        var character = characterClass.createCharacter();
+        grid.appendChild(character);
+
+        console.log(grid);
+
+        document.onkeydown = function (e) {
+
+            switch (e.keyCode) {
+                case 37:
+                    var leftDistance = parseFloat(character.style.right) + parseFloat(character.style.width);
+                    // refractoring double parseFloat
+                    if (leftDistance < parseFloat(character.style.width) * widthCountSquares && parseFloat(
+                            character.style.bottom) >= 0) {
+                        character.style.right = leftDistance +
+                            "px";
+                    }
+                    break;
+                case 38:
+                    var upDistance = parseFloat(character.style.bottom) + parseFloat(character.style.height);
+                    if (upDistance < parseFloat(character.style.height) * heightCountSquares) {
+                        character.style.bottom = parseFloat(character.style.bottom) + parseFloat(character.style.height) +
+                            "px";
+                    }
+                    break;
+                case 39:
+                    var rightDistance = parseFloat(character.style.right) - parseFloat(character.style.width);
+                    if (rightDistance >= 0) {
+                        character.style.right = rightDistance +
+                            "px";
+                    }
+                    break;
+                case 40:
+                    // refractor triple parseFloat
+                    var bottomDistance = parseFloat(character.style.bottom) - parseFloat(character.style.height);
+                    if (bottomDistance < 0 && parseFloat(character.style.right) === 0 && bottomDistance <=
+                        bottomDistance + parseFloat(character.style.bottom)) {
+                        character.style.bottom = bottomDistance + "px";
+                    } else if (bottomDistance < bottomDistance + parseFloat(character.style.bottom)) {
+                        character.style.bottom = bottomDistance +
+                            "px";
+                    }
+                    break;
+                case 32:
+                    var rowIndex = heightCountSquares - parseFloat(character.style.bottom) / parseFloat(character.style
+                        .height) - 1;
+                    var columnIndex = widthCountSquares - parseFloat(
+                        character.style
+                        .right) / parseFloat(character.style.width) - 1;
+                    if (rowIndex < heightCountSquares) {
+                        var rightIndex = Math.ceil(rowIndex * heightCountSquares + columnIndex);
+                        var storage = document.getElementsByTagName('td')[rightIndex];
+                        var currentNumberOfBoxes = parseFloat(storage.innerText);
+                        if (currentNumberOfBoxes > 0) {
+                            storage.innerHTML = currentNumberOfBoxes - 1;
+                            character.innerText = parseFloat(character.innerText) + 1;
+                        }
+
+                    }
+
+                    console.log(rowIndex * heightCountSquares + columnIndex);
+                    //console.log(document.getElementsByTagName("td")[rowIndex * heightCountSquares + columnIndex].innerText)
+
+            }
+        }
+    </script>
+</body>
+
+</html>
