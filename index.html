@@ -147,7 +147,7 @@
                         character.style
                         .right) / parseFloat(character.style.width) - 1;
                     if (rowIndex < heightCountSquares) {
-                        var rightIndex = Math.ceil(rowIndex * heightCountSquares + columnIndex);
+                        var rightIndex = Math.ceil(rowIndex * widthCountSquares + columnIndex);
                         var storage = document.getElementsByTagName('td')[rightIndex];
                         var currentNumberOfBoxes = parseFloat(storage.innerText);
                         if (currentNumberOfBoxes > 0) {
@@ -156,8 +156,6 @@
                         }
 
                     }
-
-                    console.log(rowIndex * heightCountSquares + columnIndex);
                     //console.log(document.getElementsByTagName("td")[rowIndex * heightCountSquares + columnIndex].innerText)
 
             }
