@@ -31,6 +31,7 @@
             border-collapse: collapse;
             border-spacing: 0;
             position: relative;
+            table-layout: fixed;
         }   
 
         #grid td{
@@ -38,6 +39,7 @@
             text-align: right;
             vertical-align: top;
             font-size: 100%;
+            width: 25%;
         }
         #grid tr:last-child td:last-child{
            border-bottom: 0;
@@ -54,7 +56,7 @@
     </style>
 
     <script type="text/javascript">
-        var widthCountSquares = 10;
+        var widthCountSquares = 20;
         var heightCountSquares = 5;
 
         var grid = "";
@@ -124,6 +126,7 @@
                     break;
                 case 39:
                     var rightDistance = parseFloat(character.style.right) - parseFloat(character.style.width);
+                    console.log(rightDistance);
                     if (rightDistance >= 0) {
                         character.style.right = rightDistance +
                             "px";
@@ -132,7 +135,9 @@
                 case 40:
                     // refractor triple parseFloat
                     var bottomDistance = parseFloat(character.style.bottom) - parseFloat(character.style.height);
-                    if (bottomDistance < 0 && parseFloat(character.style.right) === 0 && bottomDistance <=
+                    console.log(bottomDistance);
+                    console.log(character.style.right);
+                    if (bottomDistance <= 0 && parseFloat(character.style.right) === 0 && bottomDistance <=
                         bottomDistance + parseFloat(character.style.bottom)) {
                         character.style.bottom = bottomDistance + "px";
                     } else if (bottomDistance < bottomDistance + parseFloat(character.style.bottom)) {
@@ -147,7 +152,7 @@
                         character.style
                         .right) / parseFloat(character.style.width) - 1;
                     if (rowIndex < heightCountSquares) {
-                        var rightIndex = Math.ceil(rowIndex * widthCountSquares + columnIndex);
+                        var rightIndex = Math.round(rowIndex * widthCountSquares + columnIndex);
                         var storage = document.getElementsByTagName('td')[rightIndex];
                         var currentNumberOfBoxes = parseFloat(storage.innerText);
                         if (currentNumberOfBoxes > 0) {
@@ -155,6 +160,8 @@
                             character.innerText = parseFloat(character.innerText) + 1;
                         }
 
+                    } else if (parseFloat(character.innerText) > 0) {
+                        character.innerText = parseFloat(character.innerText) - 1;
                     }
                     //console.log(document.getElementsByTagName("td")[rowIndex * heightCountSquares + columnIndex].innerText)
 
