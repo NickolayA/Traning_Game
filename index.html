@@ -10,19 +10,33 @@
 <body>
 
     <div id="game">
+        <!-- <div id="welcomeForm">
 
-        <table id="grid">
-        </table>
+        </div> -->
+        <!-- <table id="grid">
+        </table> -->
 
     </div>
 
     <style>
+
+        #welcomeForm{
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            width: 200px;
+            height: 200px;
+            background-color: aqua;
+            display: none;
+        }
+
         #game{
             display: flex;
             align-items: center;
             justify-content: center;
             width: 100%;
             height: 100%;
+            position: relative;
         }
         
         #grid{
@@ -54,7 +68,6 @@
         #character{
             background-color: rgba(150, 150, 150, 0.2);
             position: absolute;
-            z-index: 5;
             text-align: center;
             vertical-align: middle;
             border: 1xp solid red;
@@ -66,35 +79,6 @@
     </style>
 
     <script type="text/javascript">
-        var heightCountSquares = 2 + (1);
-        var widthCountSquares = 2;
-
-
-        var grid = "";
-        for (var i = 0; i < heightCountSquares; i++) {
-            grid += "<tr>";
-            for (var j = 0; j < widthCountSquares; j++) {
-                grid += "<td>" + 10 + "</td>";
-            }
-            grid += "</tr>";
-        }
-
-        document.getElementById("grid").innerHTML = grid;
-
-        // // Grid class constructor
-        // function Grid(name) {
-        //     this.name = name;
-        // }
-        // Grid.prototype.createGrid = function () {
-        //     return this.name;
-        // }
-
-        // var grid = new Grid("JOhn");
-        // console.log(grid.createGrid());
-
-        var game = document.getElementById("game");
-
-
         // Character class
         function Character(startPositionX, startPositionY, maxCountOfBoxes) {
             this.positionX = startPositionX;
@@ -146,12 +130,15 @@
             return this.currentCountOfBoxes;
         }
 
+        Character.prototype.getCharacter = function () {
+            // make function and change character.character to character.getCharacter()
+            return this.character;
+        }
         // end character class
 
         // Storage class
-        function Storage(positionX, positionY, maxCountOfBoxes, currentCountOfBoxes) {
-            this.positionX = positionX;
-            this.positionY = positionY;
+        function Storage(positionIndex, maxCountOfBoxes, currentCountOfBoxes) {
+            this.positionIndex = positionIndex;
             this.maxCountOfBoxes = maxCountOfBoxes;
             this.currentCountOfBoxes = currentCountOfBoxes;
             this.createStorage();
@@ -160,120 +147,238 @@
         Storage.prototype = Object.create(Character.prototype);
 
         Storage.prototype.createStorage = function () {
-            var character = document.createElement('td');
-            character.setAttribute("class", "storage");
-            character.innerText = this.currentCountOfBoxes;
+            var storage = document.createElement('td');
+            storage.setAttribute("class", "storage");
+            storage.innerText = this.currentCountOfBoxes;
             this.storage = storage;
         }
 
-
-        //var storage = new Storage(10, 20);
-
-
-
+        Storage.prototype.getStorage = function () {
+            return this.storage;
+        }
 
         // end storage class
 
+        // class Grid
+        function Grid(heightCountSquares, widthCountSquares, storages, character) {
+            // check if storageCount <= heightCountSquares * widthCountSquares
+            this.heightCountSquares = heightCountSquares;
+            this.widthCountSquares = widthCountSquares;
+            this.storages = storages;
+            this.character = character;
+            this.grid = null;
+            this.createGrid();
+        }
 
+        Grid.prototype.createGrid = function () {
 
+            var grid = document.createElement("table");
+            grid.setAttribute("id", "grid");
 
+            for (var i = 0; i < this.heightCountSquares; i++) {
+                //create tr element
+                var tr = document.createElement('tr');
+                grid.appendChild(tr);
 
-        var grid = document.getElementById("grid");
-        //var character = characterClass.createCharacter();
-        var character = new Character(widthCountSquares - 1, heightCountSquares - 1, 5);
-        var tds = grid.getElementsByTagName('td');
-        //tds[widthCountSquares * (heightCountSquares + 1) - 1].appendChild(character);
-
-        var currentPositionX = widthCountSquares - 1;
-        var currentPositionY = heightCountSquares - 1;
-        tds[currentPositionY * widthCountSquares + currentPositionX].appendChild(character.character);
-
-
-
-        document.onkeydown = function (e) {
-
-
-            let {
-                currentPositionX,
-                currentPositionY
-            } = character.getCurrentPosition();
-
-            console.log("start", currentPositionX, currentPositionY);
-
-            switch (e.keyCode) {
-
-                case 37: // Left
-                    if (currentPositionX != 0 && currentPositionY !=
-                        heightCountSquares + 1 && currentPositionY != heightCountSquares - 1) {
-                        character.character.parentNode.removeChild(character.character);
-                        currentPositionX -= 1;
-                        character.moveCharacter(currentPositionX, currentPositionY);
-                        tds[currentPositionY * widthCountSquares + currentPositionX].appendChild(character
-                            .character);
-                    }
-
-                    break;
-                case 38: // Up
-                    if (currentPositionY != 0) {
-                        character.character.parentNode.removeChild(character.character);
-                        currentPositionY -= 1;
-                        character.moveCharacter(currentPositionX, currentPositionY);
-                        console.log(currentPositionX, currentPositionY);
-                        tds[currentPositionY * widthCountSquares + currentPositionX].appendChild(character.character);
-                    }
-
-                    break;
-                case 39:
-                    if (currentPositionX != widthCountSquares - 1) {
-                        character.character.parentNode.removeChild(character.character);
-                        currentPositionX += 1;
-                        character.moveCharacter(currentPositionX, currentPositionY);
-
-                        tds[currentPositionY * widthCountSquares + currentPositionX].appendChild(character.character);
-                    }
-
-                    break;
-                case 40:
-                    if (currentPositionY != heightCountSquares - 1 && currentPositionX == widthCountSquares - 1) {
-                        character.character.parentNode.removeChild(character.character);
-                        currentPositionY += 1;
-                        character.moveCharacter(currentPositionX, currentPositionY);
-
-                        tds[currentPositionY * widthCountSquares + currentPositionX].appendChild(character.character);
-                    } else if (currentPositionY != heightCountSquares - 2 && currentPositionX != widthCountSquares -
-                        1) {
-                        character.character.parentNode.removeChild(character.character);
-                        currentPositionY += 1;
-                        character.moveCharacter(currentPositionX, currentPositionY);
-
-                        tds[currentPositionY * widthCountSquares + currentPositionX].appendChild(character.character);
-                    }
-                    break;
-                case 32:
-                    var positionIndex = currentPositionY * widthCountSquares + currentPositionX;
-
-                    if (positionIndex == widthCountSquares * heightCountSquares - 1) {
-                        // On Exit position
-                        //var countOfBoxes = parseInt(character.removeBox());
-                        if (character.getCountOfBoxes() != 0) {
-                            tds[positionIndex].innerText = parseInt(tds[positionIndex].innerHTML) + 1;
-                            character.removeBox();
-                            tds[positionIndex].appendChild(character.character);
-                        }
+                for (var j = 0; j < this.widthCountSquares; j++) {
+                    if (i == this.heightCountSquares - 1 && j == this.widthCountSquares - 1) {
+                        var td = document.createElement("td");
+                        td.appendChild(this.character.getCharacter());
+                        tr.appendChild(td);
+                    } else if (this.storages[i * this.widthCountSquares + j] == undefined) {
+                        tr.appendChild(document.createElement("td"));
                     } else {
-                        // In storages
-                        var countOfBoxes = parseInt(tds[positionIndex].innerHTML);
-                        if (countOfBoxes != 0) {
-                            tds[positionIndex].innerText = countOfBoxes - 1;
-                            character.addBox();
-                            console.log(character.getCountOfBoxes());
-                            tds[positionIndex].appendChild(character.character);
-
-                        }
+                        tr.appendChild(this.storages[i * this.widthCountSquares +
+                                j]
+                            .getStorage());
                     }
+                }
+            }
+
+            this.grid = grid;
+        }
+
+        Grid.prototype.getGrid = function () {
+            return this.grid;
+        }
+        // end class Grid
+
+        // class Game
+        function Game(heightCountSquares, widthCountSquares, storagesCount, maxCountOfBoxesPerStorage,
+            maxCountOfBoxesPerCharacter) {
+
+            // check if storageCount <= heightCountSquares * widthCountSquares
+            this.storages = [];
+            this.heightCountSquares = heightCountSquares + 1;
+            this.widthCountSquares = widthCountSquares;
+            this.storagesCount = storagesCount;
+            this.maxCountOfBoxesPerStorage = maxCountOfBoxesPerStorage;
+            this.maxCountOfBoxesPerCharacter = maxCountOfBoxesPerCharacter;
+
+            this.grid = null;
+            this.storages = [];
+            this.character = null;
+            this.createStorages();
+            this.createCharacter();
+            this.createGrid();
+            this.createGame();
+
+        }
+
+        Game.prototype.showWelcomeForm = function () {
+            var welcomeForm = document.getElementById("welcomeForm");
+            welcomeForm.style.display = "block";
+        }
+
+        Game.prototype.hideWelcomeForm = function () {
+            var welcomeForm = document.getElementById("welcomeForm");
+            welcomeForm.style.display = none;
+        }
+
+        Game.prototype.createStorages = function () {
+            var randomPositions = [];
+            var countOfSquares = this.widthCountSquares * (this.heightCountSquares - 1);
+
+            while (randomPositions.length < this.storagesCount) {
+                var randomNumber = Math.floor(Math.random() * countOfSquares);
+                if (randomPositions.indexOf(randomNumber) > -1) continue;
+                randomPositions[randomPositions.length] = randomNumber;
+            }
+
+            for (var randomPosition of randomPositions) {
+                var countOfBoxesPerStorage = Math.floor(Math.random() * this.maxCountOfBoxesPerStorage) + 1;
+                this.storages[randomPosition] = countOfBoxesPerStorage;
+            }
+
+            this.storages = this.storages.map(function (index, countOfBoxesPerStorage) {
+                if (countOfBoxesPerStorage != "undefined") {
+                    return new Storage(index, this.maxCountOfBoxesPerStorage,
+                        countOfBoxesPerStorage);
+                }
+            });
+        }
+
+        Game.prototype.createGrid = function () {
+            this.grid = new Grid(this.heightCountSquares, this.widthCountSquares, this.storages, this.character);
+
+        }
+
+        Game.prototype.createCharacter = function () {
+            this.character = new Character(this.widthCountSquares - 1, this.heightCountSquares - 1, this.maxCountOfBoxesPerCharacter);
+        }
+
+        Game.prototype.createGame = function () {
+            document.getElementById("game").appendChild(this.grid.getGrid());
+            var that = this;
+            var tds = document.getElementsByTagName('td');
+            document.onkeydown = function (e) {
+
+
+                let {
+                    currentPositionX,
+                    currentPositionY
+                } = that.character.getCurrentPosition();
+
+
+
+                switch (e.keyCode) {
+
+                    case 37: // Left
+                        if (currentPositionX != 0 && currentPositionY !=
+                            that.heightCountSquares + 1 && currentPositionY != that.heightCountSquares - 1) {
+                            that.character.getCharacter().parentNode.removeChild(that.character.getCharacter());
+                            currentPositionX -= 1;
+                            that.character.moveCharacter(currentPositionX, currentPositionY);
+                            tds[currentPositionY * that.widthCountSquares + currentPositionX].appendChild(that.character
+                                .getCharacter());
+                        }
+
+                        break;
+                    case 38: // Up
+                        if (currentPositionY != 0) {
+                            that.character.getCharacter().parentNode.removeChild(that.character.getCharacter());
+                            currentPositionY -= 1;
+                            that.character.moveCharacter(currentPositionX, currentPositionY);
+
+                            tds[currentPositionY * that.widthCountSquares + currentPositionX].appendChild(that.character
+                                .getCharacter());
+                        }
+
+                        break;
+                    case 39:
+                        if (currentPositionX != that.widthCountSquares - 1) {
+                            that.character.getCharacter().parentNode.removeChild(that.character.getCharacter());
+                            currentPositionX += 1;
+                            that.character.moveCharacter(currentPositionX, currentPositionY);
+
+                            tds[currentPositionY * that.widthCountSquares + currentPositionX].appendChild(that.character
+                                .getCharacter());
+                        }
+
+                        break;
+                    case 40:
+                        if (currentPositionY != that.heightCountSquares - 1 && currentPositionX == that.widthCountSquares -
+                            1) {
+                            that.character.getCharacter().parentNode.removeChild(that.character.getCharacter());
+                            currentPositionY += 1;
+                            that.character.moveCharacter(currentPositionX, currentPositionY);
+
+                            tds[currentPositionY * that.widthCountSquares + currentPositionX].appendChild(that.character
+                                .getCharacter());
+                        } else if (currentPositionY != that.heightCountSquares - 2 && currentPositionX !=
+                            that.widthCountSquares -
+                            1) {
+                            that.character.getCharacter().parentNode.removeChild(that.character.getCharacter());
+                            currentPositionY += 1;
+                            that.character.moveCharacter(currentPositionX, currentPositionY);
+
+                            tds[currentPositionY * that.widthCountSquares + currentPositionX].appendChild(that.character
+                                .getCharacter());
+                        }
+                        break;
+                    case 32:
+                        var positionIndex = currentPositionY * that.widthCountSquares + currentPositionX;
+
+                        if (positionIndex == this.widthCountSquares * this.heightCountSquares - 1 && tds[
+                                positionIndex].classList.contains('storage')) {
+
+                            // On Exit position
+                            //var countOfBoxes = parseInt(character.removeBox());
+                            if (that.character.getCountOfBoxes() != 0) {
+                                tds[positionIndex].innerText = parseInt(tds[positionIndex].innerHTML) + 1;
+                                that.character.removeBox();
+                                tds[positionIndex].appendChild(that.character.getCharacter());
+                            }
+                        } else if (tds[positionIndex].classList.contains('storage')) {
+                            // In storages
+                            console.log(tds[positionIndex], positionIndex)
+                            var countOfBoxes = parseInt(tds[positionIndex].innerHTML);
+                            if (countOfBoxes != 0) {
+                                tds[positionIndex].innerText = countOfBoxes - 1;
+                                that.character.addBox();
+                                tds[positionIndex].appendChild(that.character.getCharacter());
+
+                            }
+                        }
+                }
+
             }
 
         }
+        // end class
+        var game = new Game(5, 6, 3, 4, 1);
+
+
+
+        // var grid = document.getElementById("grid");
+        // //var character = characterClass.createCharacter();
+        // var character = new Character(widthCountSquares - 1, heightCountSquares - 1, 5);
+        // var tds = grid.getElementsByTagName('td');
+        //tds[widthCountSquares * (heightCountSquares + 1) - 1].appendChild(character);
+
+        // var currentPositionX = widthCountSquares - 1;
+        // var currentPositionY = heightCountSquares - 1;
+        // tds[currentPositionY * widthCountSquares + currentPositionX].appendChild(character.getCharacter());
     </script>
 </body>
 
