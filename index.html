@@ -53,6 +53,7 @@
             text-align: right;
             vertical-align: top;
             position: relative;
+            z-index: 5;
         }
         #grid tr:nth-last-child(2) td:last-child{
             border-bottom: 0;
@@ -73,6 +74,7 @@
             border: 1xp solid red;
             width: 100%;
             height: 100%;
+            
         }
 
 
@@ -145,6 +147,7 @@
         }
 
         Storage.prototype = Object.create(Character.prototype);
+        //Storage.prototype = new Character(1, 2, 3);
 
         Storage.prototype.createStorage = function () {
             var storage = document.createElement('td');
@@ -153,10 +156,16 @@
             this.storage = storage;
         }
 
+        Storage.prototype.removeBox = function () {
+            if (this.currentCountOfBoxes > 0) {
+                this.currentCountOfBoxes -= 1;
+                this.storage.innerText = this.currentCountOfBoxes;
+            }
+        }
+
         Storage.prototype.getStorage = function () {
             return this.storage;
         }
-
         // end storage class
 
         // class Grid
@@ -183,6 +192,7 @@
                 for (var j = 0; j < this.widthCountSquares; j++) {
                     if (i == this.heightCountSquares - 1 && j == this.widthCountSquares - 1) {
                         var td = document.createElement("td");
+                        td.innerText = 0;
                         td.appendChild(this.character.getCharacter());
                         tr.appendChild(td);
                     } else if (this.storages[i * this.widthCountSquares + j] == undefined) {
@@ -214,6 +224,7 @@
             this.storagesCount = storagesCount;
             this.maxCountOfBoxesPerStorage = maxCountOfBoxesPerStorage;
             this.maxCountOfBoxesPerCharacter = maxCountOfBoxesPerCharacter;
+            this.countOfAllBoxes = 0;
 
             this.grid = null;
             this.storages = [];
@@ -248,11 +259,14 @@
             for (var randomPosition of randomPositions) {
                 var countOfBoxesPerStorage = Math.floor(Math.random() * this.maxCountOfBoxesPerStorage) + 1;
                 this.storages[randomPosition] = countOfBoxesPerStorage;
+
             }
 
-            this.storages = this.storages.map(function (index, countOfBoxesPerStorage) {
+            var that = this;
+            this.storages = this.storages.map(function (countOfBoxesPerStorage, index) {
                 if (countOfBoxesPerStorage != "undefined") {
-                    return new Storage(index, this.maxCountOfBoxesPerStorage,
+                    that.countOfAllBoxes += countOfBoxesPerStorage;
+                    return new Storage(index, that.maxCountOfBoxesPerStorage,
                         countOfBoxesPerStorage);
                 }
             });
@@ -339,25 +353,28 @@
                     case 32:
                         var positionIndex = currentPositionY * that.widthCountSquares + currentPositionX;
 
-                        if (positionIndex == this.widthCountSquares * this.heightCountSquares - 1 && tds[
-                                positionIndex].classList.contains('storage')) {
+                        if (positionIndex == that.widthCountSquares * that.heightCountSquares - 1) {
 
                             // On Exit position
-                            //var countOfBoxes = parseInt(character.removeBox());
-                            if (that.character.getCountOfBoxes() != 0) {
-                                tds[positionIndex].innerText = parseInt(tds[positionIndex].innerHTML) + 1;
+                            if (that.character.getCountOfBoxes() > 0) {
+                                var countOfBoxesOnExit = parseInt(tds[positionIndex].innerHTML);
+                                tds[positionIndex].innerText = countOfBoxesOnExit + 1;
                                 that.character.removeBox();
                                 tds[positionIndex].appendChild(that.character.getCharacter());
+
+                                if (countOfBoxesOnExit + 1 == that.countOfAllBoxes) {
+                                    alert("You win");
+                                }
                             }
                         } else if (tds[positionIndex].classList.contains('storage')) {
                             // In storages
-                            console.log(tds[positionIndex], positionIndex)
-                            var countOfBoxes = parseInt(tds[positionIndex].innerHTML);
-                            if (countOfBoxes != 0) {
-                                tds[positionIndex].innerText = countOfBoxes - 1;
+
+                            var countOfBoxes = that.storages[positionIndex].getCountOfBoxes();
+
+                            if (countOfBoxes > 0 && that.character.getCountOfBoxes() < that.maxCountOfBoxesPerCharacter) {
+                                that.storages[positionIndex].removeBox();
                                 that.character.addBox();
                                 tds[positionIndex].appendChild(that.character.getCharacter());
-
                             }
                         }
                 }
@@ -366,19 +383,7 @@
 
         }
         // end class
-        var game = new Game(5, 6, 3, 4, 1);
-
-
-
-        // var grid = document.getElementById("grid");
-        // //var character = characterClass.createCharacter();
-        // var character = new Character(widthCountSquares - 1, heightCountSquares - 1, 5);
-        // var tds = grid.getElementsByTagName('td');
-        //tds[widthCountSquares * (heightCountSquares + 1) - 1].appendChild(character);
-
-        // var currentPositionX = widthCountSquares - 1;
-        // var currentPositionY = heightCountSquares - 1;
-        // tds[currentPositionY * widthCountSquares + currentPositionX].appendChild(character.getCharacter());
+        var game = new Game(5, 6, 3, 4, 3);
     </script>
 </body>
 
