@@ -38,11 +38,17 @@
             border: 1px solid black;
             text-align: right;
             vertical-align: top;
-            font-size: 100%;
-            width: 25%;
+            position: relative;
         }
-        #grid tr:last-child td:last-child{
-           border-bottom: 0;
+        #grid tr:nth-last-child(2) td:last-child{
+            border-bottom: 0;
+        }
+        #grid tr:nth-last-child(1) td{
+            border: none;
+        }
+
+        #grid tr:last-child td:nth-last-child(1){
+            
         }
         
         #character{
@@ -50,20 +56,24 @@
             position: absolute;
             text-align: center;
             vertical-align: middle;
+            border: 1xp solid red;
+            width: 100%;
+            height: 100%;
         }
 
 
     </style>
 
     <script type="text/javascript">
-        var widthCountSquares = 20;
-        var heightCountSquares = 5;
+        var heightCountSquares = 10 + (1);
+        var widthCountSquares = 10;
+
 
         var grid = "";
         for (var i = 0; i < heightCountSquares; i++) {
             grid += "<tr>";
             for (var j = 0; j < widthCountSquares; j++) {
-                grid += "<td>" + j + "</td>";
+                grid += "<td>" + (i) + " " + (j) + "</td>";
             }
             grid += "</tr>";
         }
@@ -89,61 +99,110 @@
             createCharacter: function () {
                 var character = document.createElement('div');
                 character.setAttribute("id", "character");
-                character.style.width = this.width;
-                character.style.height = this.height;
-                character.style.right = 0;
-                character.style.bottom = -this.height;
+                character.style.width = "100%";
+                character.style.height = "100%";
+                character.style.top = "0px";
+                character.style.left = "0px";
                 character.innerText = 0;
 
                 return character;
             }
         };
 
+        function Character(startPositionX, startPositionY) {
+            this.positionX = startPositionX;
+            this.positionY = startPositionY;
+        }
+
+        Character.prototype.createCharacter = function () {
+
+        }
+
         var grid = document.getElementById("grid");
         var character = characterClass.createCharacter();
-        grid.appendChild(character);
+        var tds = grid.getElementsByTagName('td');
+        //tds[widthCountSquares * (heightCountSquares + 1) - 1].appendChild(character);
 
-        console.log(grid);
+        var currentPositionX = widthCountSquares - 1;
+        var currentPositionY = heightCountSquares - 1;
+        tds[currentPositionY * widthCountSquares + currentPositionX].appendChild(character);
+
+        var characterHtml = document.getElementById("character");
+
 
         document.onkeydown = function (e) {
 
             switch (e.keyCode) {
                 case 37:
-                    var leftDistance = parseFloat(character.style.right) + parseFloat(character.style.width);
-                    // refractoring double parseFloat
-                    if (leftDistance < parseFloat(character.style.width) * widthCountSquares && parseFloat(
-                            character.style.bottom) >= 0) {
-                        character.style.right = leftDistance +
-                            "px";
+                    if (currentPositionX != 0 && currentPositionY !=
+                        heightCountSquares + 1 && currentPositionY != heightCountSquares - 1) {
+                        characterHtml.parentNode.removeChild(characterHtml);
+                        currentPositionX -= 1;
+                        tds[currentPositionY * widthCountSquares + currentPositionX].appendChild(character);
                     }
+
+                    // var leftDistance = parseFloat(parseFloat(character.style.right).toFixed(2)) + parseFloat(
+                    //     parseFloat(
+                    //         character.style.width)
+                    //     .toFixed(2));
+                    // console.log(leftDistance);
+                    // // refractoring double parseFloat
+                    // if (leftDistance < parseFloat(character.style.width) * widthCountSquares && parseFloat(
+                    //         character.style.bottom) >= 0) {
+                    //     character.style.right = leftDistance +
+                    //         "px";
+                    // }
                     break;
                 case 38:
-                    var upDistance = parseFloat(character.style.bottom) + parseFloat(character.style.height);
-                    if (upDistance < parseFloat(character.style.height) * heightCountSquares) {
-                        character.style.bottom = parseFloat(character.style.bottom) + parseFloat(character.style.height) +
-                            "px";
+                    if (currentPositionY != 0) {
+                        characterHtml.parentNode.removeChild(characterHtml);
+                        currentPositionY -= 1;
+                        tds[currentPositionY * widthCountSquares + currentPositionX].appendChild(character);
                     }
+                    // var upDistance = parseFloat(parseFloat(character.style.bottom).toFixed(1)) + parseFloat(
+                    //     parseFloat(
+                    //         character.style.height).toFixed(1));
+                    // console.log(upDistance);
+                    // if (upDistance <= parseFloat(character.style.height) * heightCountSquares) {
+                    //     character.style.bottom = upDistance +
+                    //         "px";
+                    // }
                     break;
                 case 39:
-                    var rightDistance = parseFloat(character.style.right) - parseFloat(character.style.width);
-                    console.log(rightDistance);
-                    if (rightDistance >= 0) {
-                        character.style.right = rightDistance +
-                            "px";
+                    if (currentPositionX != widthCountSquares - 1) {
+                        characterHtml.parentNode.removeChild(characterHtml);
+                        currentPositionX += 1;
+                        tds[currentPositionY * widthCountSquares + currentPositionX].appendChild(character);
                     }
+                    // var rightDistance = parseFloat(character.style.right) - parseFloat(character.style.width);
+
+                    // console.log(rightDistance);
+                    // if (rightDistance >= 0) {
+                    //     character.style.right = rightDistance +
+                    //         "px";
+                    // }
                     break;
                 case 40:
-                    // refractor triple parseFloat
-                    var bottomDistance = parseFloat(character.style.bottom) - parseFloat(character.style.height);
-                    console.log(bottomDistance);
-                    console.log(character.style.right);
-                    if (bottomDistance <= 0 && parseFloat(character.style.right) === 0 && bottomDistance <=
-                        bottomDistance + parseFloat(character.style.bottom)) {
-                        character.style.bottom = bottomDistance + "px";
-                    } else if (bottomDistance < bottomDistance + parseFloat(character.style.bottom)) {
-                        character.style.bottom = bottomDistance +
-                            "px";
+                    if (currentPositionY != heightCountSquares - 1 && currentPositionX == widthCountSquares - 1) {
+                        characterHtml.parentNode.removeChild(characterHtml);
+                        currentPositionY += 1;
+                        tds[currentPositionY * widthCountSquares + currentPositionX].appendChild(character);
+                    } else if (currentPositionY != heightCountSquares - 2 && currentPositionX != widthCountSquares -
+                        1) {
+                        characterHtml.parentNode.removeChild(characterHtml);
+                        currentPositionY += 1;
+                        tds[currentPositionY * widthCountSquares + currentPositionX].appendChild(character);
                     }
+                    // var bottomDistance = parseFloat(character.style.bottom) - parseFloat(character.style.height);
+                    // console.log(bottomDistance);
+                    // console.log(character.style.right);
+                    // if (bottomDistance <= 0 && parseFloat(character.style.right) === 0 && bottomDistance <=
+                    //     bottomDistance + parseFloat(character.style.bottom)) {
+                    //     character.style.bottom = bottomDistance + "px";
+                    // } else if (bottomDistance < bottomDistance + parseFloat(character.style.bottom)) {
+                    //     character.style.bottom = bottomDistance +
+                    //         "px";
+                    // }
                     break;
                 case 32:
                     var rowIndex = heightCountSquares - parseFloat(character.style.bottom) / parseFloat(character.style
