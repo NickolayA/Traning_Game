@@ -54,6 +54,7 @@
         #character{
             background-color: rgba(150, 150, 150, 0.2);
             position: absolute;
+            z-index: 5;
             text-align: center;
             vertical-align: middle;
             border: 1xp solid red;
@@ -65,15 +66,15 @@
     </style>
 
     <script type="text/javascript">
-        var heightCountSquares = 10 + (1);
-        var widthCountSquares = 10;
+        var heightCountSquares = 2 + (1);
+        var widthCountSquares = 2;
 
 
         var grid = "";
         for (var i = 0; i < heightCountSquares; i++) {
             grid += "<tr>";
             for (var j = 0; j < widthCountSquares; j++) {
-                grid += "<td>" + (i) + " " + (j) + "</td>";
+                grid += "<td>" + 10 + "</td>";
             }
             grid += "</tr>";
         }
@@ -127,7 +128,6 @@
         var currentPositionY = heightCountSquares - 1;
         tds[currentPositionY * widthCountSquares + currentPositionX].appendChild(character);
 
-        var characterHtml = document.getElementById("character");
 
 
         document.onkeydown = function (e) {
@@ -136,7 +136,7 @@
                 case 37:
                     if (currentPositionX != 0 && currentPositionY !=
                         heightCountSquares + 1 && currentPositionY != heightCountSquares - 1) {
-                        characterHtml.parentNode.removeChild(characterHtml);
+                        character.parentNode.removeChild(character);
                         currentPositionX -= 1;
                         tds[currentPositionY * widthCountSquares + currentPositionX].appendChild(character);
                     }
@@ -155,7 +155,7 @@
                     break;
                 case 38:
                     if (currentPositionY != 0) {
-                        characterHtml.parentNode.removeChild(characterHtml);
+                        character.parentNode.removeChild(character);
                         currentPositionY -= 1;
                         tds[currentPositionY * widthCountSquares + currentPositionX].appendChild(character);
                     }
@@ -170,7 +170,7 @@
                     break;
                 case 39:
                     if (currentPositionX != widthCountSquares - 1) {
-                        characterHtml.parentNode.removeChild(characterHtml);
+                        character.parentNode.removeChild(character);
                         currentPositionX += 1;
                         tds[currentPositionY * widthCountSquares + currentPositionX].appendChild(character);
                     }
@@ -184,12 +184,12 @@
                     break;
                 case 40:
                     if (currentPositionY != heightCountSquares - 1 && currentPositionX == widthCountSquares - 1) {
-                        characterHtml.parentNode.removeChild(characterHtml);
+                        character.parentNode.removeChild(character);
                         currentPositionY += 1;
                         tds[currentPositionY * widthCountSquares + currentPositionX].appendChild(character);
                     } else if (currentPositionY != heightCountSquares - 2 && currentPositionX != widthCountSquares -
                         1) {
-                        characterHtml.parentNode.removeChild(characterHtml);
+                        character.parentNode.removeChild(character);
                         currentPositionY += 1;
                         tds[currentPositionY * widthCountSquares + currentPositionX].appendChild(character);
                     }
@@ -205,23 +205,42 @@
                     // }
                     break;
                 case 32:
-                    var rowIndex = heightCountSquares - parseFloat(character.style.bottom) / parseFloat(character.style
-                        .height) - 1;
-                    var columnIndex = widthCountSquares - parseFloat(
-                        character.style
-                        .right) / parseFloat(character.style.width) - 1;
-                    if (rowIndex < heightCountSquares) {
-                        var rightIndex = Math.round(rowIndex * widthCountSquares + columnIndex);
-                        var storage = document.getElementsByTagName('td')[rightIndex];
-                        var currentNumberOfBoxes = parseFloat(storage.innerText);
-                        if (currentNumberOfBoxes > 0) {
-                            storage.innerHTML = currentNumberOfBoxes - 1;
-                            character.innerText = parseFloat(character.innerText) + 1;
-                        }
+                    var positionIndex = currentPositionY * widthCountSquares + currentPositionX;
 
-                    } else if (parseFloat(character.innerText) > 0) {
-                        character.innerText = parseFloat(character.innerText) - 1;
+                    if (positionIndex == widthCountSquares * heightCountSquares - 1) {
+                        // On Exit position
+                        var countOfBoxes = parseInt(character.innerHTML);
+                        if (countOfBoxes != 0) {
+                            tds[positionIndex].innerText = parseInt(tds[positionIndex].innerHTML) + 1;
+                            tds[positionIndex].appendChild(character);
+                            character.innerText = parseInt(character.innerText) - 1;
+                        }
+                    } else {
+                        // In storages
+                        var countOfBoxes = parseInt(tds[positionIndex].innerHTML);
+                        if (countOfBoxes != 0) {
+                            tds[positionIndex].innerText = countOfBoxes - 1;
+                            tds[positionIndex].appendChild(character);
+                            character.innerText = parseInt(character.innerText) + 1;
+                        }
                     }
+                    // var rowIndex = heightCountSquares - parseFloat(character.style.bottom) / parseFloat(character.style
+                    //     .height) - 1;
+                    // var columnIndex = widthCountSquares - parseFloat(
+                    //     character.style
+                    //     .right) / parseFloat(character.style.width) - 1;
+                    // if (rowIndex < heightCountSquares) {
+                    //     var rightIndex = Math.round(rowIndex * widthCountSquares + columnIndex);
+                    //     var storage = document.getElementsByTagName('td')[rightIndex];
+                    //     var currentNumberOfBoxes = parseFloat(storage.innerText);
+                    //     if (currentNumberOfBoxes > 0) {
+                    //         storage.innerHTML = currentNumberOfBoxes - 1;
+                    //         character.innerText = parseFloat(character.innerText) + 1;
+                    //     }
+
+                    // } else if (parseFloat(character.innerText) > 0) {
+                    //     character.innerText = parseFloat(character.innerText) - 1;
+                    // }
                     //console.log(document.getElementsByTagName("td")[rowIndex * heightCountSquares + columnIndex].innerText)
 
             }
