@@ -94,21 +94,6 @@
 
         var game = document.getElementById("game");
 
-        // var characterClass = {
-        //     width: 0.7 * game.offsetWidth / widthCountSquares,
-        //     height: 0.7 * game.offsetHeight / heightCountSquares,
-        //     createCharacter: function () {
-        //         var character = document.createElement('div');
-        //         character.setAttribute("id", "character");
-        //         character.style.width = "100%";
-        //         character.style.height = "100%";
-        //         character.style.top = "0px";
-        //         character.style.left = "0px";
-        //         character.innerText = 0;
-
-        //         return character;
-        //     }
-        // };
 
         // Character class
         function Character(startPositionX, startPositionY, maxCountOfBoxes) {
@@ -161,6 +146,33 @@
             return this.currentCountOfBoxes;
         }
 
+        // end character class
+
+        // Storage class
+        function Storage(positionX, positionY, maxCountOfBoxes, currentCountOfBoxes) {
+            this.positionX = positionX;
+            this.positionY = positionY;
+            this.maxCountOfBoxes = maxCountOfBoxes;
+            this.currentCountOfBoxes = currentCountOfBoxes;
+            this.createStorage();
+        }
+
+        Storage.prototype = Object.create(Character.prototype);
+
+        Storage.prototype.createStorage = function () {
+            var character = document.createElement('td');
+            character.setAttribute("class", "storage");
+            character.innerText = this.currentCountOfBoxes;
+            this.storage = storage;
+        }
+
+
+        //var storage = new Storage(10, 20);
+
+
+
+
+        // end storage class
 
 
 
@@ -244,11 +256,9 @@
                         // On Exit position
                         //var countOfBoxes = parseInt(character.removeBox());
                         if (character.getCountOfBoxes() != 0) {
-                            console.log(character.getCountOfBoxes());
                             tds[positionIndex].innerText = parseInt(tds[positionIndex].innerHTML) + 1;
                             character.removeBox();
                             tds[positionIndex].appendChild(character.character);
-                            console.log("Exit")
                         }
                     } else {
                         // In storages
