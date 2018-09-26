@@ -14,19 +14,19 @@
         <form id="welcomeForm">
             <label for="horizontal">Horizontal</label>
             <input type="number" id="horizontal" min="1" placeholder="1" value="1" required>
-            <br />
+            <hr />
             <label for="vertical">Vertical</label>
             <input type="number" id="vertical" min="1" placeholder="1" value="1" required>
-            <br />
+            <hr />
             <label for="numstorages">Number of storage</label>
             <input type="number" id="numstorages" min="1" placeholder="1" value="1" required>
-            <br />
+            <hr />
             <label for="maxnumberboxesperstorage">Max number of boxes per storage</label>
             <input type="number" id="maxnumberboxesperstorage" min="1" placeholder="1" value="1" required>
-            <br />
+            <hr />
             <label for="maxnumberboxespercharacter">Max boxes per character</label>
             <input type="number" id="maxnumberboxespercharacter" min="1" placeholder="1" value="1" required>
-            <br />
+            <hr />
 
             <input type="submit" value="Start play">
         </form>
@@ -41,8 +41,7 @@
             position: absolute;
             top: 50%;
             left: 50%;
-            width: 200px;
-            height: 200px;
+            
             background-color: aqua;
             display: none;
             position: absolute;
@@ -51,8 +50,14 @@
             width:400px;
             margin-left:-200px;
             left:50%;
+            padding: 10px;
         }
 
+        #welcomeForm label{
+            display: inline-block;
+            width: 150px;
+        }
+        
         #game{
             display: flex;
             align-items: center;
@@ -277,8 +282,13 @@
 
                 this.win = false;
                 var h1 = document.createElement("h1");
+                h1.style.color = "red";
                 h1.innerText = "You win";
-                welcomeForm.appendChild(h1);
+
+                if (welcomeForm.getElementsByTagName('h1').length == 0) {
+                    welcomeForm.appendChild(h1);
+                }
+
             }
 
             welcomeForm.style.display = "block";
