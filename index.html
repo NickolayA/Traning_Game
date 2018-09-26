@@ -77,27 +77,33 @@
         }   
 
         #grid td{
-            border: 1px solid black;
+            border: 3px solid black;
             text-align: right;
             vertical-align: top;
             position: relative;
             z-index: 5;
+            
+        }
 
+        #grid td.storage{
+            background-color: coral;
         }
         
         #grid tr:nth-last-child(2) td:last-child{
             border-bottom: 0;
         }
+
         #grid tr:nth-last-child(1) td{
             border: none;
         }
 
-        #grid tr:last-child td:nth-last-child(1){
-            
+        #grid td#exit{
+            background-color: rosybrown;
         }
+
         
         #character{
-            background-color: rgba(150, 150, 150, 0.2);
+            background-color: rgba(50, 150, 150, 0.5);
             position: absolute;
             text-align: center;
             vertical-align: middle;
@@ -177,7 +183,6 @@
         }
 
         Storage.prototype = Object.create(Character.prototype);
-        //Storage.prototype = new Character(1, 2, 3);
 
         Storage.prototype.createStorage = function () {
             var storage = document.createElement('td');
@@ -210,7 +215,7 @@
         }
 
         Grid.prototype.createGrid = function () {
-            console.log("CreateGrid Grid Class")
+            // Create grid table with td as storage or without them
             var grid = document.createElement("table");
             grid.setAttribute("id", "grid");
 
@@ -223,14 +228,20 @@
                     if (i == this.heightCountSquares - 1 && j == this.widthCountSquares - 1) {
                         var td = document.createElement("td");
                         td.innerText = 0;
+                        td.setAttribute('id', 'exit');
                         td.appendChild(this.character.getCharacter());
                         tr.appendChild(td);
                     } else if (this.storages[i * this.widthCountSquares + j] == undefined) {
+
                         tr.appendChild(document.createElement("td"));
                     } else {
-                        tr.appendChild(this.storages[i * this.widthCountSquares +
+                        var storage = this.storages[i * this.widthCountSquares +
                                 j]
-                            .getStorage());
+                            .getStorage();
+                        storage.setAttribute('data-index', i * this.widthCountSquares +
+                            j);
+                        console.log(storage);
+                        tr.appendChild(storage);
                     }
                 }
             }
@@ -245,16 +256,6 @@
 
         // class Game
         function Game() {
-
-            //this.showWelcomeForm();
-
-
-            // check if storageCount <= heightCountSquares * widthCountSquares
-            // this.heightCountSquares = heightCountSquares + 1;
-            // this.widthCountSquares = widthCountSquares;
-            // this.storagesCount = storagesCount;
-            // this.maxCountOfBoxesPerStorage = maxCountOfBoxesPerStorage;
-            // this.maxCountOfBoxesPerCharacter = maxCountOfBoxesPerCharacter;
 
             this.showWelcomeForm();
             this.win = false;
@@ -311,15 +312,6 @@
                 that.maxCountOfBoxesPerStorage = parseInt(forms[3].value);
                 that.maxCountOfBoxesPerCharacter = parseInt(forms[4].value);
 
-                // [that.widthCountSquares, that.heightCountSquares, that.storagesCount, that.maxCountOfBoxesPerStorage,
-                //     that.maxCountOfBoxesPerCharacter
-                // ] = forms.map(function (el) {
-                //     return parseInt(el.value)
-                // })
-                // for (var i in forms) {
-                //     console.log(forms[i].value)
-                // }
-                // return;
                 that.hideWelcomeForm();
             }, {
                 once: true
@@ -334,6 +326,7 @@
             this.createCharacterInstance();
             this.createGridInstance();
             this.createGame();
+            this.addDragEventsToStorages();
         }
 
         Game.prototype.createStorages = function () {
@@ -364,17 +357,101 @@
 
         Game.prototype.createGridInstance = function () {
             this.grid = new Grid(this.heightCountSquares, this.widthCountSquares, this.storages, this.character);
-            console.log("Game Class Create Grid Instance", this);
         }
 
         Game.prototype.createCharacterInstance = function () {
             this.character = new Character(this.widthCountSquares - 1, this.heightCountSquares - 1, this.maxCountOfBoxesPerCharacter);
         }
 
+        Game.prototype.addDragEventsToStorages = function () {
+            var that = this;
+            var storages = document.getElementsByClassName('storage');
+            var exit = document.getElementById('exit');
+
+            var characterOnDraggedElement = false;
+            var indexOfDraggedElement;
+
+            function dragStart(e) {
+                characterOnDraggedElement = that.character.getCharacter() == e.target.children.item(0);
+
+                if (parseInt(e.target.innerText) == 0) {
+                    return;
+                }
+                if (e.target == that.character.getCharacter()) {
+                    console.log(e.target, "character")
+
+                }
+                indexOfDraggedElement = parseInt(e.target.dataset.index);
+            }
+
+            function dragEnd(e) {
+
+            }
+
+            function dragOver(e) {
+                e.preventDefault();
+
+            }
+
+            function dragDrop(e) {
+                console.log(e.target, "drage Drop")
+                if (that.storages[indexOfDraggedElement].getCountOfBoxes()) {
+                    that.storages[indexOfDraggedElement].removeBox();
+                    if (characterOnDraggedElement)
+                        that.storages[indexOfDraggedElement].getStorage().appendChild(that.character.getCharacter())
+
+                    if (e.target.parentElement == exit) {
+                        that.character.getCharacter().parentElement.removeChild(that.character.getCharacter());
+                        exit.innerText = parseInt(exit.innerText) + 1;
+                        exit.appendChild(that.character.getCharacter());
+                    } else {
+                        console.log("else")
+                        exit.innerText = parseInt(exit.innerText) + 1;
+                    }
+                }
+            }
+
+
+            exit.addEventListener('dragstart', dragStart);
+            exit.addEventListener('dragend', dragEnd);
+            exit.addEventListener('dragover', dragOver);
+            exit.addEventListener('drop', dragDrop);
+
+
+
+            Array.prototype.forEach.call(storages, function (storage) {
+                storage.addEventListener('dragstart', dragStart);
+                storage.addEventListener('dragend', dragEnd);
+                storage.addEventListener('dragover', dragOver);
+            });
+
+
+        }
+
+        Game.prototype.makeStoragesDraggable = function () {
+            var storages = document.getElementsByClassName('storage');
+
+
+
+            Array.prototype.forEach.call(storages, function (storage) {
+                storage.setAttribute('draggable', true);
+            });
+
+        }
+
+
+        Game.prototype.makeStoragesUndraggable = function () {
+            var storages = document.getElementsByClassName('storage');
+            Array.prototype.forEach.call(storages, function (storage) {
+                storage.removeAttribute('draggable');
+            });
+        }
+
         Game.prototype.createGame = function () {
             document.getElementById("game").appendChild(this.grid.getGrid());
             var that = this;
             var tds = document.getElementsByTagName('td');
+
             document.onkeydown = function (e) {
 
 
@@ -440,7 +517,7 @@
                                 .getCharacter());
                         }
                         break;
-                    case 32:
+                    case 32: // Space
                         var positionIndex = currentPositionY * that.widthCountSquares + currentPositionX;
 
                         if (positionIndex == that.widthCountSquares * that.heightCountSquares - 1) {
@@ -473,8 +550,16 @@
                                 alert("Too many boxes for you or storage is empty");
                             }
                         }
+                    case 17:
+                        that.makeStoragesDraggable();
                 }
 
+            }
+
+            document.onkeyup = function (e) {
+
+                if (e.keyCode == 17)
+                    that.makeStoragesUndraggable();
             }
 
         }
