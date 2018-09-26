@@ -10,11 +10,28 @@
 <body>
 
     <div id="game">
-        <!-- <div id="welcomeForm">
 
-        </div> -->
-        <!-- <table id="grid">
-        </table> -->
+        <form id="welcomeForm">
+            <label for="horizontal">Horizontal</label>
+            <input type="number" id="horizontal" min="1" placeholder="1" value="1" required>
+            <br />
+            <label for="vertical">Vertical</label>
+            <input type="number" id="vertical" min="1" placeholder="1" value="1" required>
+            <br />
+            <label for="numstorages">Number of storage</label>
+            <input type="number" id="numstorages" min="1" placeholder="1" value="1" required>
+            <br />
+            <label for="maxnumberboxesperstorage">Max number of boxes per storage</label>
+            <input type="number" id="maxnumberboxesperstorage" min="1" placeholder="1" value="1" required>
+            <br />
+            <label for="maxnumberboxespercharacter">Max boxes per character</label>
+            <input type="number" id="maxnumberboxespercharacter" min="1" placeholder="1" value="1" required>
+            <br />
+
+            <input type="submit" value="Start play">
+        </form>
+
+
 
     </div>
 
@@ -28,6 +45,12 @@
             height: 200px;
             background-color: aqua;
             display: none;
+            position: absolute;
+            top: 0px;
+            z-index: 2;
+            width:400px;
+            margin-left:-200px;
+            left:50%;
         }
 
         #game{
@@ -54,7 +77,9 @@
             vertical-align: top;
             position: relative;
             z-index: 5;
+
         }
+        
         #grid tr:nth-last-child(2) td:last-child{
             border-bottom: 0;
         }
@@ -180,7 +205,7 @@
         }
 
         Grid.prototype.createGrid = function () {
-
+            console.log("CreateGrid Grid Class")
             var grid = document.createElement("table");
             grid.setAttribute("id", "grid");
 
@@ -214,36 +239,91 @@
         // end class Grid
 
         // class Game
-        function Game(heightCountSquares, widthCountSquares, storagesCount, maxCountOfBoxesPerStorage,
-            maxCountOfBoxesPerCharacter) {
+        function Game() {
+
+            //this.showWelcomeForm();
+
 
             // check if storageCount <= heightCountSquares * widthCountSquares
-            this.storages = [];
-            this.heightCountSquares = heightCountSquares + 1;
-            this.widthCountSquares = widthCountSquares;
-            this.storagesCount = storagesCount;
-            this.maxCountOfBoxesPerStorage = maxCountOfBoxesPerStorage;
-            this.maxCountOfBoxesPerCharacter = maxCountOfBoxesPerCharacter;
-            this.countOfAllBoxes = 0;
+            // this.heightCountSquares = heightCountSquares + 1;
+            // this.widthCountSquares = widthCountSquares;
+            // this.storagesCount = storagesCount;
+            // this.maxCountOfBoxesPerStorage = maxCountOfBoxesPerStorage;
+            // this.maxCountOfBoxesPerCharacter = maxCountOfBoxesPerCharacter;
 
+            this.showWelcomeForm();
+            this.win = false;
+
+            this.countOfAllBoxes = 0;
             this.grid = null;
             this.storages = [];
             this.character = null;
-            this.createStorages();
-            this.createCharacter();
-            this.createGrid();
-            this.createGame();
 
         }
 
         Game.prototype.showWelcomeForm = function () {
+
+            if (this.grid) {
+                this.grid.getGrid().parentElement.removeChild(this.grid.getGrid());
+                document.onkeydown = null;
+                console.log(this.grid.getGrid())
+            }
+
+
             var welcomeForm = document.getElementById("welcomeForm");
+            // Add You Win message if you win
+            if (this.win) {
+                console.log("You win")
+
+                this.win = false;
+                var h1 = document.createElement("h1");
+                h1.innerText = "You win";
+                welcomeForm.appendChild(h1);
+            }
+
             welcomeForm.style.display = "block";
+            var that = this;
+            this.grid = null;
+            this.storages = [];
+            this.character = null;
+            this.countOfAllBoxes = 0;
+
+            welcomeForm.addEventListener('submit', function (e) {
+                e.preventDefault();
+                var forms = document.forms['welcomeForm'].elements;
+                if (parseInt(forms[0].value) * parseInt(forms[1].value) < parseInt(forms[2].value)) {
+
+                    return;
+                }
+                that.widthCountSquares = parseInt(forms[0].value);
+                that.heightCountSquares = parseInt(forms[1].value) + 1;
+                that.storagesCount = parseInt(forms[2].value);
+                that.maxCountOfBoxesPerStorage = parseInt(forms[3].value);
+                that.maxCountOfBoxesPerCharacter = parseInt(forms[4].value);
+
+                // [that.widthCountSquares, that.heightCountSquares, that.storagesCount, that.maxCountOfBoxesPerStorage,
+                //     that.maxCountOfBoxesPerCharacter
+                // ] = forms.map(function (el) {
+                //     return parseInt(el.value)
+                // })
+                // for (var i in forms) {
+                //     console.log(forms[i].value)
+                // }
+                // return;
+                that.hideWelcomeForm();
+            }, {
+                once: true
+            });
+
         }
 
         Game.prototype.hideWelcomeForm = function () {
             var welcomeForm = document.getElementById("welcomeForm");
-            welcomeForm.style.display = none;
+            welcomeForm.style.display = "none";
+            this.createStorages();
+            this.createCharacterInstance();
+            this.createGridInstance();
+            this.createGame();
         }
 
         Game.prototype.createStorages = function () {
@@ -272,12 +352,12 @@
             });
         }
 
-        Game.prototype.createGrid = function () {
+        Game.prototype.createGridInstance = function () {
             this.grid = new Grid(this.heightCountSquares, this.widthCountSquares, this.storages, this.character);
-
+            console.log("Game Class Create Grid Instance", this);
         }
 
-        Game.prototype.createCharacter = function () {
+        Game.prototype.createCharacterInstance = function () {
             this.character = new Character(this.widthCountSquares - 1, this.heightCountSquares - 1, this.maxCountOfBoxesPerCharacter);
         }
 
@@ -362,9 +442,13 @@
                                 that.character.removeBox();
                                 tds[positionIndex].appendChild(that.character.getCharacter());
 
+                                console.log(countOfBoxesOnExit, that.countOfAllBoxes);
                                 if (countOfBoxesOnExit + 1 == that.countOfAllBoxes) {
-                                    alert("You win");
+                                    that.win = true;
+                                    that.showWelcomeForm();
                                 }
+                            } else {
+                                alert("You are empty");
                             }
                         } else if (tds[positionIndex].classList.contains('storage')) {
                             // In storages
@@ -375,6 +459,8 @@
                                 that.storages[positionIndex].removeBox();
                                 that.character.addBox();
                                 tds[positionIndex].appendChild(that.character.getCharacter());
+                            } else {
+                                alert("Too many boxes for you or storage is empty");
                             }
                         }
                 }
@@ -383,7 +469,7 @@
 
         }
         // end class
-        var game = new Game(5, 6, 3, 4, 3);
+        var game = new Game();
     </script>
 </body>
 
